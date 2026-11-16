@@ -337,9 +337,26 @@ it navigates. Filed as defect #9.
 | `eval` vs CSP | refused (defect #3) | works on DuckDuckGo |
 | `wait_for` `js:` timeout message | `Timed out waiting for ... on page` | `... on Firefox tab` (and it fails once the interaction script is gone) |
 
-### Not yet determined
+### Re-tested on fresh tabs (first document, where interaction still works)
 
-- Tab/focus semantics with Firefox **foregrounded** — the earlier "Tab does not move focus"
-  result is confounded by the background state, since focus events are suppressed there.
-- Whether defects #4–#8 (typing, occlusion, `readonly`, popups, select) reproduce here:
-  they need the interaction script, which currently dies on navigation.
+| Defect | WebView | Firefox bridge |
+|---|---|---|
+| #5 click through an overlay | occurs | **occurs** (`clicks: 1`) |
+| #5 click `pointer-events:none` | occurs | **occurs** (`clicks: 1`) |
+| #6 `readonly` overwritten | occurs | **occurs** (`"new"`) |
+| #6 `maxlength` ignored | occurs | **occurs** (`"abcdefg"`) |
+| #8 select false success | occurs | **occurs** (`Selected "Nonexistent"`, value `""`) |
+| #4 typing emits `keydown` | none | **none** (`keydowns: ""`), value still set |
+
+So #5, #6, #8 and the missing-keydown half of #4 are **tool-layer defects**, not backend
+artifacts — they reproduce identically on both. Only #3 (eval vs CSP) turned out to be
+WebView-specific.
+
+One difference in the other direction: the **closed** shadow root's contents appeared in the
+Firefox text extraction (`Closed shadow button0`), where WebView showed nothing.
+
+### Still not determined
+
+- Tab/focus semantics with Firefox **foregrounded** — the "Tab does not move focus" result is
+  confounded by the background state, since focus events are suppressed there.
+- Defect #7 (popups / `target=_blank`) on this backend.
