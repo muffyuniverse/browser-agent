@@ -26,6 +26,11 @@ the rest of this document is evidence, not a workaround manual.**
 | 6 | `type` writes into `readonly` and ignores `maxlength` | constraints honoured |
 | 7 | `target=_blank` / `window.open()` fail silently | tab opens, or an explicit "popup blocked" |
 | 8 | `type` on a `<select>` reports success when no option matches | failure listing the real options |
+| 9 | **Firefox bridge:** every interaction fails after a tab navigates or reloads — `Interaction script not ready on page` | interactions work on every document load |
+| 10 | **Firefox bridge:** `eval` is expression-only (`return` throws an opaque sandbox error), promises are not awaited, page globals are invisible | same contract as WebView; readable errors |
+
+Defects 1–8 were measured on the WebView backend (Android WebView 157); 9–10 on the Firefox
+bridge (Firefox Bridge 1.1 v1) after it replaced WebView.
 
 Known limits that are **not** defects (no action exists to test them, or the platform refuses):
 PDF rendering, hover-gated UI, history back/forward, drag and drop, modifier-key combos,
@@ -295,3 +300,46 @@ There is **no** hover, no back/forward history, no drag, no modifier combos (`Ct
 In every one the tool reported success while the page did something else (or nothing).
 These are the cases behind defects #5, #6 and #8: a `0` from `click`/`type` currently means
 "dispatched", not "took effect", which is precisely what the fixes need to change.
+
+---
+
+## 14. Firefox bridge — initial survey
+
+`env` now reports `browser  firefox (Firefox Bridge 1.1 v1)`, replacing
+`com.google.android.webview 157.0.8103.38`. Measured with Firefox **in the background**.
+
+### Works
+
+- `read`, `snapshot` and `eval` (expression form) on a tab, backgrounded or not.
+- Driving an existing `shared` tab.
+- Opening new tabs/sessions — each new session loads independently.
+- **Interactions on a tab's first document**: `click` toggles a checkbox, `type` sets a
+  field and fires a real focus event (`focusLog: k1`), `press` is accepted.
+- **`eval` on CSP-strict pages.** DuckDuckGo's `html.duckduckgo.com` returned its title via
+  `eval`, so WebView defect #3 does not apply to this backend.
+- Fresh tabs report `document.hasFocus(): true` and `visibilityState: "visible"` even with
+  Firefox backgrounded, so backgrounding is not what blocks anything.
+
+### Blocking defect
+
+**After a tab navigates — or simply reloads — every interaction fails** with
+`Interaction script not ready on page.` Reproduced four times; `read`/`snapshot`/`eval`
+keep working, only the interaction helpers are gone. A new tab to the same URL works until
+it navigates. Filed as defect #9.
+
+### Behaviour changes from WebView
+
+| Area | WebView | Firefox bridge |
+|---|---|---|
+| `eval` form | function body with `return` | **expression only**; `return` throws `@sandbox eval code:1:33` |
+| `eval` promises | awaited | **not awaited** — async IIFE times out after 8 s |
+| `eval` world | page world (page globals visible) | **isolated** — `typeof window.__videoProbe === "undefined"` |
+| `eval` vs CSP | refused (defect #3) | works on DuckDuckGo |
+| `wait_for` `js:` timeout message | `Timed out waiting for ... on page` | `... on Firefox tab` (and it fails once the interaction script is gone) |
+
+### Not yet determined
+
+- Tab/focus semantics with Firefox **foregrounded** — the earlier "Tab does not move focus"
+  result is confounded by the background state, since focus events are suppressed there.
+- Whether defects #4–#8 (typing, occlusion, `readonly`, popups, select) reproduce here:
+  they need the interaction script, which currently dies on navigation.
