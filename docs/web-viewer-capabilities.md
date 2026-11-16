@@ -320,6 +320,20 @@ These are the cases behind defects #5, #6 and #8: a `0` from `click`/`type` curr
 - Fresh tabs report `document.hasFocus(): true` and `visibilityState: "visible"` even with
   Firefox backgrounded, so backgrounding is not what blocks anything.
 
+### Tab model
+
+- Every tab the bridge knows about appears in `tabs`, with my sessions and the person's shared
+  tab in the same list.
+- **Actions are not limited to the visible tab.** `tabA` was backgrounded (its page reported
+  `visibilityState: "hidden"`, `hasFocus: false`) and a `click` still applied — the radio
+  moved to "Two" and the earlier checkbox stayed checked. `read`/`snapshot`/`eval` also keep
+  working on hidden tabs.
+- There is **no activate/switch action**, and none is needed to drive a tab: a session is
+  bound to its tab and actions are delivered there regardless of which tab is on screen.
+- **The `shared` alias is not stable.** It follows whatever tab the person shares: after a
+  re-share, `shared` resolved to a bench tab while the previously shared DuckDuckGo tab was
+  only reachable as `tab-10017`. Address a specific tab by the id from `tabs` when it matters.
+
 ### Blocking defect
 
 **After a tab navigates — or simply reloads — every interaction fails** with
