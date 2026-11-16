@@ -1,0 +1,215 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Web Viewer Capability Bench</title>
+<style>
+  :root { color-scheme: dark; }
+  body { font: 16px/1.5 system-ui, sans-serif; margin: 0; padding: 18px; background:#12151c; color:#e6e9ef; }
+  h1 { font-size: 19px; margin: 0 0 4px; }
+  h2 { font-size: 14px; margin: 0 0 10px; color:#8fa3ff; text-transform: uppercase; letter-spacing: .04em; }
+  .sub { color:#8b93a5; font-size:13px; margin:0 0 14px; }
+  section { border:1px solid #2b3242; border-radius:12px; padding:14px; margin-bottom:14px; background:#161b26; }
+  input, select, button { font-size:15px; padding:8px 10px; border-radius:8px; border:1px solid #2b3242; background:#1a1f2b; color:#e6e9ef; margin:3px 4px 3px 0; }
+  button { background:#4f7cff; border:0; font-weight:600; color:#fff; }
+  output, pre { display:block; font-family: ui-monospace, monospace; font-size:12px; color:#9be89b; background:#0d1017; border-radius:8px; padding:8px; margin-top:8px; white-space:pre-wrap; word-break:break-word; }
+  iframe { border:1px solid #2b3242; border-radius:8px; margin-top:6px; background:#fff; }
+  label { margin-right:10px; font-size:14px; }
+</style>
+</head>
+<body>
+<h1>Web Viewer Capability Bench</h1>
+<p class="sub">Each section probes one browser feature. Probes write JSON into their <code>output</code>.</p>
+
+<section>
+  <h2>1. Form controls</h2>
+  <select id="sel">
+    <option value="alpha">Alpha</option>
+    <option value="beta">Beta</option>
+    <option value="gamma">Gamma</option>
+  </select>
+  <label><input type="checkbox" id="chk"> Check me</label>
+  <label><input type="radio" name="r" id="r1" value="one"> One</label>
+  <label><input type="radio" name="r" id="r2" value="two"> Two</label>
+  <input type="range" id="rng" min="0" max="100" value="20">
+  <input type="date" id="dt">
+  <input type="text" id="dis" value="disabled field" disabled>
+  <input type="file" id="file">
+  <button id="btnState">Report state</button>
+  <output id="stateOut">—</output>
+</section>
+
+<section>
+  <h2>2. Keyboard focus order</h2>
+  <input id="k1" placeholder="first">
+  <input id="k2" placeholder="second">
+  <input id="k3" placeholder="third">
+  <output id="focusLog">focus: —</output>
+</section>
+
+<section>
+  <h2>3. Frames</h2>
+  <iframe id="sameFrame" src="inner.html" width="100%" height="120" title="same-origin frame"></iframe>
+  <iframe id="crossFrame" src="https://example.com" width="100%" height="120" title="cross-origin frame"></iframe>
+  <button id="frameProbe">Probe frames</button>
+  <output id="frameOut">—</output>
+</section>
+
+<section>
+  <h2>4. Shadow DOM</h2>
+  <div id="shadowHost"></div>
+  <button id="shadowProbe">Probe shadow</button>
+  <output id="shadowOut">—</output>
+</section>
+
+<section>
+  <h2>5. Canvas</h2>
+  <canvas id="cv" width="220" height="80" style="border:1px solid #2b3242;border-radius:8px"></canvas>
+  <button id="canvasProbe">Probe canvas</button>
+  <output id="canvasOut">—</output>
+</section>
+
+<section>
+  <h2>6. Storage</h2>
+  <button id="lsInc">localStorage +1</button>
+  <button id="cookieSet">Set cookie</button>
+  <output id="storeOut">—</output>
+</section>
+
+<section>
+  <h2>7. Network from inside the page</h2>
+  <button id="cors">CORS fetch api.github.com</button>
+  <output id="corsOut">—</output>
+</section>
+
+<section>
+  <h2>8. Downloads &amp; dialogs</h2>
+  <a id="dl" href="data:text/plain;charset=utf-8,downloaded%20from%20the%20bench" download="bench-download.txt">Download a text file</a>
+  <button id="confirmBtn">Trigger confirm()</button>
+  <button id="popupBtn">window.open() popup</button>
+  <output id="dialogOut">—</output>
+</section>
+
+<section>
+  <h2>9. Visibility semantics</h2>
+  <p id="visHidden" style="display:none">INVISIBLE-TEXT-SHOULD-NOT-APPEAR</p>
+  <p aria-hidden="true">ARIA-HIDDEN-TEXT</p>
+  <details><summary>Expand me</summary><p>DETAILS-CONTENT</p></details>
+</section>
+
+<section>
+  <h2>10. Lazy content</h2>
+  <p class="sub">Scroll to the bottom to load more.</p>
+  <div id="lazy"></div>
+</section>
+
+<script>
+  const set = (id, obj) => { document.getElementById(id).textContent = JSON.stringify(obj); };
+
+  // 1
+  document.getElementById('btnState').addEventListener('click', () => {
+    set('stateOut', {
+      select: document.getElementById('sel').value,
+      checkbox: document.getElementById('chk').checked,
+      radio: (document.querySelector('input[name=r]:checked') || {}).value || null,
+      range: document.getElementById('rng').value,
+      date: document.getElementById('dt').value,
+      file: document.getElementById('file').files.length
+    });
+  });
+
+  // 2
+  ['k1','k2','k3'].forEach(id => {
+    const el = document.getElementById(id);
+    el.addEventListener('focus', () => {
+      document.getElementById('focusLog').textContent = 'focus: ' + id;
+    });
+  });
+
+  // 3
+  document.getElementById('frameProbe').addEventListener('click', () => {
+    const out = {};
+    try {
+      const d = document.getElementById('sameFrame').contentDocument;
+      out.sameOrigin = d ? d.title : 'null document';
+      out.sameOriginBody = d ? (d.body.innerText || '').replace(/\s+/g, ' ').trim().slice(0, 80) : null;
+    } catch (e) { out.sameOriginError = e.name; }
+    try {
+      const d = document.getElementById('crossFrame').contentDocument;
+      out.crossOrigin = d ? 'accessible' : 'null document (blocked)';
+    } catch (e) { out.crossOriginError = e.name; }
+    set('frameOut', out);
+  });
+
+  // 4
+  const host = document.getElementById('shadowHost');
+  const root = host.attachShadow({ mode: 'open' });
+  root.innerHTML = '<button id="shadowBtn" style="background:#2fbf71;border:0;padding:8px 12px;border-radius:8px;color:#fff">Shadow button</button><span id="shadowCount" style="margin-left:8px;color:#9be89b">0</span>';
+  let shadowClicks = 0;
+  root.getElementById('shadowBtn').addEventListener('click', () => {
+    shadowClicks++;
+    root.getElementById('shadowCount').textContent = String(shadowClicks);
+  });
+  document.getElementById('shadowProbe').addEventListener('click', () => {
+    set('shadowOut', { mode: 'open', clicks: shadowClicks, text: root.getElementById('shadowCount').textContent });
+  });
+
+  // 5
+  const cv = document.getElementById('cv');
+  const ctx = cv.getContext('2d');
+  ctx.fillStyle = '#1a1f2b'; ctx.fillRect(0, 0, 220, 80);
+  ctx.fillStyle = '#4f7cff'; ctx.fillRect(10, 10, 60, 60);
+  ctx.fillStyle = '#9be89b'; ctx.font = '16px sans-serif'; ctx.fillText('canvas', 90, 48);
+  document.getElementById('canvasProbe').addEventListener('click', () => {
+    set('canvasOut', { w: cv.width, h: cv.height, dataUrlLength: cv.toDataURL('image/png').length });
+  });
+
+  // 6
+  document.getElementById('lsInc').addEventListener('click', () => {
+    const n = Number(localStorage.getItem('benchClicks') || 0) + 1;
+    localStorage.setItem('benchClicks', String(n));
+    set('storeOut', { localStorage: n });
+  });
+  document.getElementById('cookieSet').addEventListener('click', () => {
+    document.cookie = 'benchCookie=1; path=/; SameSite=Lax';
+    set('storeOut', { cookie: document.cookie, localStorage: localStorage.getItem('benchClicks') });
+  });
+
+  // 7
+  document.getElementById('cors').addEventListener('click', async () => {
+    set('corsOut', { status: 'requesting' });
+    try {
+      const r = await fetch('https://api.github.com/zen', { headers: { Accept: 'text/plain' } });
+      set('corsOut', { ok: r.ok, status: r.status, body: (await r.text()).slice(0, 60) });
+    } catch (e) {
+      set('corsOut', { error: e.name + ': ' + e.message });
+    }
+  });
+
+  // 8
+  document.getElementById('confirmBtn').addEventListener('click', () => {
+    const answer = confirm('Bench confirm dialog');
+    set('dialogOut', { confirmReturned: answer });
+  });
+  document.getElementById('popupBtn').addEventListener('click', () => {
+    const w = window.open('inner.html', '_blank');
+    set('dialogOut', { popupOpened: !!w });
+  });
+
+  // 10
+  let lazyN = 0;
+  const lazy = document.getElementById('lazy');
+  new IntersectionObserver(entries => {
+    entries.forEach(e => {
+      if (e.isIntersecting) {
+        lazyN++;
+        const d = document.createElement('p');
+        d.textContent = 'LAZY-ITEM-' + lazyN;
+        lazy.appendChild(d);
+      }
+    });
+  }, { rootMargin: '200px' }).observe(document.getElementById('lazy'));
+</script>
+</body>
+</html>

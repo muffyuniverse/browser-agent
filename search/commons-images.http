@@ -1,0 +1,4 @@
+GET https://commons.wikimedia.org/w/api.php?action=query&generator=search&gsrsearch=filetype%3Abitmap%20red%20panda&gsrlimit=8&gsrnamespace=6&prop=imageinfo&iiprop=url%7Cmime&iiurlwidth=800&format=json
+User-Agent: PechkaBrowserTest/1.0
+Accept: application/json
+
