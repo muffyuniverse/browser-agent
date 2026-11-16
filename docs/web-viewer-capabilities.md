@@ -320,6 +320,22 @@ These are the cases behind defects #5, #6 and #8: a `0` from `click`/`type` curr
 - Fresh tabs report `document.hasFocus(): true` and `visibilityState: "visible"` even with
   Firefox backgrounded, so backgrounding is not what blocks anything.
 
+### Two kinds of tab
+
+| | Tab the bridge opens (`browse {session, url}`) | Tab the person shares |
+|---|---|---|
+| `read` / `snapshot` / `eval` | ✅ | ✅ |
+| `click` / `type` / `press` / `scroll` | ✅ **but only on the tab's first document** | ❌ `Interaction script not ready on page.` |
+| `hasFocus` / `visibility` | `true` / `visible` | `true` / `visible` |
+| DOM writable from `eval` | yes | yes (`input.value` set successfully) |
+
+So the shared tab is **read-only**, and that is the inverse of the intuitive assumption: the
+person's own tab is the one that cannot be driven. A failed `click` on it still moves focus
+(`document.activeElement` becomes the target) before reporting the error.
+
+`tabs` lists both kinds in one flat list with no marker for origin or drivability, which is
+why the distinction is invisible until an action fails.
+
 ### Tab model
 
 - Every tab the bridge knows about appears in `tabs`, with my sessions and the person's shared
