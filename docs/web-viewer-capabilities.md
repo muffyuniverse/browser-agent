@@ -201,3 +201,44 @@ Tested on `bench/lab.html`, `bench/react.html`, `bench/console.html`, `bench/dia
   drive the native file picker.
 - Console capture makes the viewer a decent debugging tool: `browse` after an action shows
   the page's own errors, which is often faster than guessing why a click did nothing.
+
+---
+
+## 12. Third round — adversarial targets (bug hunting)
+
+Tested on `bench/poke.html`. These probe cases where a tool is *likely* to lie about success.
+
+| Case | Result | Verdict |
+|---|---|---|
+| Button covered by an overlay (`z-index` above it) | click went **through** the overlay, handler ran | ❌ **bug** — hit-testing bypassed |
+| Button with `pointer-events:none` | handler ran | ❌ **bug** — same cause |
+| `disabled` button | correctly inert, counter stayed 0 | ✅ |
+| `readonly` input | value overwritten (`"new"`) | ❌ **bug** — constraint bypassed |
+| `maxlength="3"` input | accepted `"abcdefg"` (7 chars) | ❌ **bug** — constraint bypassed |
+| `input[type=number]` | ✅ `"42"` | ✅ |
+| `input[type=date]` | ✅ `"2026-11-16"` | ✅ |
+| Cyrillic + emoji (`Привет 🌍`) | ✅ exact round-trip | ✅ |
+| `Backspace` on a filled field | `keydown` delivered (`isTrusted:false`), value unchanged | ❌ same root cause as §5 |
+| Link with `target="_blank"` | click handler ran, **no tab opened**, no error | ❌ **bug** — silent failure |
+| `window.open()` | blocked, no tab, no error | ❌ same |
+| Button far below the fold | scrolled to it and clicked (`scrollY` 2297) | ✅ |
+| PDF URL | load times out; session left with **no page** | ❌ limitation — no PDF viewer |
+| HTTP 401 (basic auth) | clean `answered HTTP 401`, no hang; tab shows "Webpage not available" | ✅ |
+
+### Cross-session behaviour
+
+- **Cookies are shared across sessions.** A cookie set in session `poke` was readable in a
+  separate session `cookie2` on the same origin (`benchCookie=1; xsec=abc123`). Sessions are
+  not cookie-isolated.
+- **Sessions disappear from `tabs` over time.** Older sessions (`wv`, `lab`, `react`,
+  `console`, `dlg`) were gone from the list later in the run while `auth` and `poke`
+  remained — idle sessions appear to be evicted, so a long-lived session cannot be assumed
+  to survive indefinitely.
+
+### The common thread
+
+Four of the failures above share one cause: **actions are applied to the DOM node rather than
+simulated as user input.** A real user cannot click a covered button, cannot type into a
+readonly field, and cannot exceed `maxlength`. Because the tool addresses elements directly,
+it succeeds where a user would fail — and reports success either way. When a result matters,
+verify by reading state back (`eval`), not by trusting the action's success status.

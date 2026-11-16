@@ -79,6 +79,7 @@ Findings are written up in [`../docs/web-viewer-capabilities.md`](../docs/web-vi
 | `pm-inner.html` | Child frame for the postMessage probe |
 | `sw.js` | Service worker that intercepts `/lab-marker.txt` (a file that does not exist) |
 | `bye.html` | Destination for the beforeunload navigation test |
+| `poke.html` | Third round — adversarial targets: covered button, `pointer-events:none`, disabled, readonly, maxlength, unicode, Backspace, target=_blank, far-below-fold |
 | `sample.mp4` | Local video source for the `<video>` probe — **git-ignored** (binary), see below |
 
 Results are written up in [`../docs/web-viewer-capabilities.md`](../docs/web-viewer-capabilities.md) §11.

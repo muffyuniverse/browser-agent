@@ -1,0 +1,107 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Poke — bug hunting</title>
+<style>
+  :root { color-scheme: dark; }
+  body { font:16px/1.5 system-ui, sans-serif; margin:0; padding:16px; background:#12151c; color:#e6e9ef; }
+  h1 { font-size:18px; margin:0 0 12px; }
+  h2 { font-size:13px; margin:0 0 8px; color:#8fa3ff; text-transform:uppercase; letter-spacing:.04em; }
+  section { border:1px solid #2b3242; border-radius:12px; padding:12px; margin-bottom:12px; background:#161b26; }
+  input, button { font-size:15px; padding:8px 10px; border-radius:8px; border:1px solid #2b3242; background:#1a1f2b; color:#e6e9ef; margin:3px 4px 3px 0; }
+  button { background:#4f7cff; border:0; color:#fff; font-weight:600; }
+  button[disabled] { background:#39415a; color:#8b93a5; }
+  output { display:block; font-family:ui-monospace,monospace; font-size:12px; color:#9be89b; background:#0d1017; border-radius:8px; padding:8px; margin-top:8px; white-space:pre-wrap; word-break:break-word; }
+  .wrap { position:relative; height:86px; }
+  .wrap > button { position:absolute; top:14px; left:14px; }
+  .veil { position:absolute; inset:0; background:rgba(10,12,18,.82); border:1px dashed #4f7cff; border-radius:10px; z-index:5; }
+</style>
+</head>
+<body>
+<h1>Poke — bug hunting</h1>
+
+<section>
+  <h2>1. Target covered by an overlay</h2>
+  <div class="wrap">
+    <button id="behind">Behind overlay</button>
+    <div class="veil"></div>
+  </div>
+  <output id="behindOut">clicks: 0</output>
+</section>
+
+<section>
+  <h2>2. Disabled control</h2>
+  <button id="dis" disabled>Disabled button</button>
+  <output id="disOut">clicks: 0</output>
+</section>
+
+<section>
+  <h2>3. Pointer-events:none control</h2>
+  <button id="pe" style="pointer-events:none">Pointer-events none</button>
+  <output id="peOut">clicks: 0</output>
+</section>
+
+<section>
+  <h2>4. Input types</h2>
+  <input id="ro" readonly value="readonly-value">
+  <input id="ml" maxlength="3" placeholder="max 3">
+  <input id="num" type="number" placeholder="number">
+  <input id="dt" type="date">
+  <input id="cyr" placeholder="unicode">
+  <button id="report">Report inputs</button>
+  <output id="inputsOut">—</output>
+</section>
+
+<section>
+  <h2>5. Backspace / Delete</h2>
+  <input id="bs" value="abcdef">
+  <output id="bsOut">—</output>
+</section>
+
+<section>
+  <h2>6. Slow handler (3000 ms)</h2>
+  <button id="slow">Slow button</button>
+  <output id="slowOut">clicks: 0</output>
+</section>
+
+<section>
+  <h2>7. Link with target=_blank</h2>
+  <a id="blank" href="bye.html" target="_blank">Opens a new tab</a>
+  <output id="blankOut">not clicked</output>
+</section>
+
+<div style="height:1400px"></div>
+
+<section id="farSection">
+  <h2>8. Target far below the fold</h2>
+  <button id="far">Far down button</button>
+  <output id="farOut">clicks: 0</output>
+</section>
+
+<script>
+  const counts = { behind: 0, dis: 0, pe: 0, slow: 0, far: 0 };
+  const show = (id, n) => { document.getElementById(id).textContent = 'clicks: ' + n; };
+  for (const id of Object.keys(counts)) {
+    const el = document.getElementById(id);
+    el.addEventListener('click', () => { counts[id]++; show(id + 'Out', counts[id]); });
+  }
+  document.getElementById('report').addEventListener('click', () => {
+    document.getElementById('inputsOut').textContent = JSON.stringify({
+      readonly: document.getElementById('ro').value,
+      maxlength: document.getElementById('ml').value,
+      number: document.getElementById('num').value,
+      date: document.getElementById('dt').value,
+      unicode: document.getElementById('cyr').value
+    });
+  });
+  document.getElementById('bs').addEventListener('keydown', e => {
+    document.getElementById('bsOut').textContent = 'keydown ' + e.key + ' isTrusted=' + e.isTrusted + ' value=' + document.getElementById('bs').value;
+  });
+  document.getElementById('blank').addEventListener('click', () => {
+    document.getElementById('blankOut').textContent = 'clicked target=_blank';
+  });
+</script>
+</body>
+</html>
