@@ -1,14 +1,23 @@
-# Browser capability notes & toolbox
+# Search toolbox
 
-Measured behaviour of the built-in web viewer, plus reusable search recipes.
-Everything here was tested on this device (Android WebView 157 / Chromium 157) — not
-copied from documentation.
+Reusable, tested recipes for finding links and images from this device — measured here,
+not copied from documentation.
 
 | Path | What it is |
 |---|---|
-| [`docs/web-viewer-capabilities.md`](docs/web-viewer-capabilities.md) | Defect register (§0) plus the measured evidence behind each claim |
-| [`bench/`](bench/README.md) | A self-hosted page that probes each browser feature; run it to re-verify |
-| [`search/`](search/README.md) | Reusable search toolbox: DuckDuckGo, Bing, Wikimedia Commons images |
+| [`search/`](search/README.md) | DuckDuckGo, Bing, Wikimedia Commons image search |
+
+## Where the findings went
+
+Browser capability notes and the defect register are **not** kept in this repository. They
+are filed as agent reports, visible in Downloads → *Pechka agent reports*:
+
+- consolidated capability report (what works on WebView and on the Firefox bridge)
+- one advisory per defect, each with a reproduction
+- capability gaps (hover, history, drag-and-drop, modifier keys, file picker, PDF)
+
+The test pages and the notes that used to live here are still in git history if they are
+needed again.
 
 ## Fastest paths
 
@@ -26,14 +35,5 @@ http {"request":"@search/commons-images.http"}
 
 Then download any `thumburl` from the JSON and show it with `![alt](path)`.
 
-**Do not** rely on Google — it serves a JS-only shell to this WebView and returns no
-result links at all (verified against its raw HTML).
-
-## Re-running the capability bench
-
-```
-serve {"action":"start","server":"tools","root":"bench"}
-browse {"url":"http://127.0.0.1:<port>/","output":"snapshot"}
-```
-
-See [`bench/README.md`](bench/README.md) for what each of the ten sections proves.
+**Do not** rely on Google — it serves a JS-only shell to this browser and returns no result
+links at all (verified against its raw HTML).

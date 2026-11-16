@@ -1,7 +1,7 @@
 # Search toolbox
 
-Reusable, tested recipes. Google is deliberately absent — it returns no results to this
-WebView (see [`../docs/web-viewer-capabilities.md`](../docs/web-viewer-capabilities.md) §9).
+Reusable, tested recipes. Google is deliberately absent — it returns a JS-only shell with no
+result links at all (verified against its raw HTML).
 
 ---
 
@@ -34,7 +34,8 @@ browse {"url":"https://www.bing.com/search?q=YOUR+QUERY&setlang=en","output":"sn
 Real URLs come back directly (`[eN] link "Title" -> https://...`). Expect a cookie/consent
 banner (`Privacy Statement` / `Accept` / `Reject`) in the controls list.
 
-- `eval` is **blocked** on bing.com by CSP — use `snapshot`, never `eval`.
+- `eval` on bing.com depends on the browser backend: refused under WebView (CSP), works
+  under the Firefox bridge. `snapshot` works either way.
 - Add `&setlang=en` to keep the UI in English regardless of IP geolocation.
 
 ## 3. Image search — Wikimedia Commons (recommended, returns real files)
@@ -74,9 +75,8 @@ pulling many out at once needs a real script runner, which this environment lack
 
 - **Decode before trusting**: DDG wraps links in `uddg=`; Bing sometimes wraps in its own
   redirect. Always check the final host.
-- **Snapshot vs eval**: some third-party sites refuse `eval` via CSP (defect #3 in
-  [`../docs/web-viewer-capabilities.md`](../docs/web-viewer-capabilities.md)); `snapshot` is
-  unaffected because it does not inject JavaScript.
+- **Snapshot vs eval**: some third-party sites refuse `eval` via CSP, depending on the
+  backend; `snapshot` is unaffected because it does not inject JavaScript.
 - **Re-snapshot each turn**: `[eN]` refs die at turn boundaries.
 - **Heavy pages**: if a load times out, retry with `wait:"dom"` before concluding it's blocked.
 - **Rate limits are real**: an in-page `fetch` to api.github.com returned HTTP 403
