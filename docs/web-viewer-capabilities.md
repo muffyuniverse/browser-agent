@@ -334,6 +334,23 @@ These are the cases behind defects #5, #6 and #8: a `0` from `click`/`type` curr
   re-share, `shared` resolved to a bench tab while the previously shared DuckDuckGo tab was
   only reachable as `tab-10017`. Address a specific tab by the id from `tabs` when it matters.
 
+### The shared tab is not interactive
+
+With exactly one tab open — the person's, unshared and re-shared, everything else closed:
+
+| Check | Result |
+|---|---|
+| `tabs` | `[shared] https://html.duckduckgo.com/html/ (firefox)` — correct, single tab |
+| `read` / `snapshot` / `eval` | work |
+| `hasFocus` / `visibility` | `true` / `"visible"` — not a background-tab effect |
+| `type` into `input[name=q]` | ❌ `Interaction script not ready on page.` |
+| `click` on `input[name=q]` | ❌ same error |
+| after the failed click | `document.activeElement` **is** the input — the action half-applies |
+| control: a tab opened by the bridge, same moment | `click #chk` works, checkbox checked |
+
+So the bridge distinguishes tabs it opens itself (interactive on the first document) from the
+person's shared tab (never interactive). Filed separately from the navigation defect.
+
 ### Blocking defect
 
 **After a tab navigates — or simply reloads — every interaction fails** with
