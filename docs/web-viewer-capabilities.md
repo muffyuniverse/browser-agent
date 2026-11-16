@@ -242,3 +242,47 @@ simulated as user input.** A real user cannot click a covered button, cannot typ
 readonly field, and cannot exceed `maxlength`. Because the tool addresses elements directly,
 it succeeds where a user would fail — and reports success either way. When a result matters,
 verify by reading state back (`eval`), not by trusting the action's success status.
+
+---
+
+## 13. Fourth round — interaction gaps
+
+Tested on `bench/poke2.html`.
+
+| Case | Result |
+|---|---|
+| CSS `:hover`-gated menu | ❌ never opens. `click` does not set `:hover`, and synthetic `mouseover`/`mouseenter` do not either (`matches(':hover')` stayed false). No hover action exists. |
+| `display:none` element | ❌ `click` **fires its handler** (`menuClicksWhileHidden: 1`) — the strongest form of the occlusion bug |
+| Closed shadow root | ❌ invisible to `snapshot` and untargetable by CSS selector; only the component's own exposed function can read its state |
+| Sandboxed iframe (`sandbox="allow-scripts"`) | ✅ correctly opaque — `contentDocument` is null |
+| Required-field validation | ✅ browser blocks the submit (`validationMessage: "Please fill out this field."`, URL unchanged) — but the tool still reports `Clicked Submit` |
+| Valid form submit | ✅ navigates (`/bye.html`) |
+| `<select multiple>` by label | ✅ `Selected "Beta"` → `selectedOptions: ["Beta"]` |
+| `<input type=color>` | ✅ value set to `#00ff00` |
+| Drag and drop | ⚠️ untestable — no drag action exists |
+| `wait_for` timeout | ✅ clear error: ``Timed out waiting for `js:...` on page`` |
+| `type` on a select with no matching option | ❌ reports `Selected "Nonexistent"` while nothing is selected (`value: ""`, `selectedOptions: []`) |
+
+### Missing actions
+
+`browse` offers read / snapshot / click / type / press / scroll / wait_for / tabs / close.
+There is **no** hover, no back/forward history, no drag, no modifier combos (`Ctrl+A`,
+`Ctrl+C`), no file picker and no option-list selection. Consequences:
+
+- **Hover-gated UI cannot be exercised at all** — mega-menus, tooltips, and
+  reveal-on-hover controls (common on desktop sites) are unreachable.
+- **History navigation is unavailable** — after a form submit or a link, there is no way to
+  go back except re-navigating to a URL.
+- **Text selection and copy cannot be triggered** by keyboard.
+
+### The false-success pattern, five instances
+
+1. click through an overlay
+2. click `pointer-events:none`
+3. click `display:none`
+4. type into `readonly` / beyond `maxlength`
+5. select a non-existent option
+
+In every one the tool reported success while the page did something else (or nothing).
+**Rule: verify with `eval` before trusting an action's status.** A `0` from `click`/`type`
+means "dispatched", not "took effect".

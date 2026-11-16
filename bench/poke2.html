@@ -1,0 +1,135 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Poke 2 — interaction gaps</title>
+<style>
+  :root { color-scheme: dark; }
+  body { font:16px/1.5 system-ui, sans-serif; margin:0; padding:16px; background:#12151c; color:#e6e9ef; }
+  h1 { font-size:18px; margin:0 0 12px; }
+  h2 { font-size:13px; margin:0 0 8px; color:#8fa3ff; text-transform:uppercase; letter-spacing:.04em; }
+  section { border:1px solid #2b3242; border-radius:12px; padding:12px; margin-bottom:12px; background:#161b26; }
+  input, select, button { font-size:15px; padding:8px 10px; border-radius:8px; border:1px solid #2b3242; background:#1a1f2b; color:#e6e9ef; margin:3px 4px 3px 0; }
+  button { background:#4f7cff; border:0; color:#fff; font-weight:600; }
+  output { display:block; font-family:ui-monospace,monospace; font-size:12px; color:#9be89b; background:#0d1017; border-radius:8px; padding:8px; margin-top:8px; white-space:pre-wrap; word-break:break-word; }
+  #hz { border:1px dashed #4f7cff; border-radius:10px; padding:10px; }
+  #menu { display:none; margin-top:8px; background:#1a1f2b; border:1px solid #2b3242; border-radius:8px; padding:8px; }
+  #hz:hover #menu { display:block; }
+  #drop { border:1px dashed #4f7cff; border-radius:10px; padding:14px; margin-top:8px; }
+</style>
+</head>
+<body>
+<h1>Poke 2 — interaction gaps</h1>
+
+<section>
+  <h2>1. Hover-gated menu (CSS :hover only)</h2>
+  <div id="hz">
+    Hover zone
+    <div id="menu">HOVER-MENU-VISIBLE <button id="menuBtn">Menu action</button></div>
+  </div>
+  <output id="hzOut">—</output>
+</section>
+
+<section>
+  <h2>2. Closed shadow root</h2>
+  <div id="closedHost"></div>
+  <output id="closedOut">—</output>
+</section>
+
+<section>
+  <h2>3. Required-field validation</h2>
+  <form id="f" action="bye.html">
+    <input id="req" required placeholder="required field">
+    <button id="sub" type="submit">Submit</button>
+  </form>
+  <output id="valOut">—</output>
+</section>
+
+<section>
+  <h2>4. Sandboxed iframe</h2>
+  <iframe id="sb" sandbox="allow-scripts" src="pm-inner.html" width="100%" height="90" title="sandboxed"></iframe>
+  <output id="sbOut">—</output>
+</section>
+
+<section>
+  <h2>5. Multiple select</h2>
+  <select id="multi" multiple size="3">
+    <option>Alpha</option><option>Beta</option><option>Gamma</option>
+  </select>
+  <output id="multiOut">—</output>
+</section>
+
+<section>
+  <h2>6. Color input</h2>
+  <input type="color" id="col" value="#ff0000">
+  <output id="colOut">—</output>
+</section>
+
+<section>
+  <h2>7. Drag and drop</h2>
+  <div id="drag" draggable="true" style="padding:10px;border:1px solid #2b3242;border-radius:8px">DRAG ME</div>
+  <div id="drop">DROP ZONE</div>
+  <output id="dndOut">dragstart: 0, drop: 0</output>
+</section>
+
+<script>
+  const set = (id, o) => { document.getElementById(id).textContent = JSON.stringify(o); };
+
+  /* 1 */
+  window.__hoverState = () => ({
+    display: getComputedStyle(document.getElementById('menu')).display,
+    matchesHover: document.getElementById('hz').matches(':hover')
+  });
+
+  /* 2 */
+  (function closed() {
+    const host = document.getElementById('closedHost');
+    const root = host.attachShadow({ mode: 'closed' });
+    root.innerHTML = '<button id="cb">Closed shadow button</button><span id="cc">0</span>';
+    let n = 0;
+    root.getElementById('cb').addEventListener('click', () => {
+      n++;
+      root.getElementById('cc').textContent = String(n);
+    });
+    window.__closedClicks = () => n;
+    set('closedOut', { clicks: 0, note: 'closed root attached' });
+  })();
+
+  /* 3 */
+  window.__valState = () => ({
+    valid: document.getElementById('f').checkValidity(),
+    message: document.getElementById('req').validationMessage,
+    location: location.pathname
+  });
+
+  /* 4 */
+  window.__sbState = () => {
+    const f = document.getElementById('sb');
+    let access;
+    try { access = f.contentDocument ? 'readable' : 'null document'; }
+    catch (e) { access = 'throws ' + e.name; }
+    return { contentDocument: access };
+  };
+
+  /* 5 */
+  window.__multiState = () => ({
+    value: document.getElementById('multi').value,
+    selected: [...document.getElementById('multi').selectedOptions].map(o => o.text)
+  });
+
+  /* 6 */
+  window.__colState = () => ({ value: document.getElementById('col').value });
+
+  /* 7 */
+  let ds = 0, dr = 0;
+  document.getElementById('drag').addEventListener('dragstart', () => {
+    ds++; document.getElementById('dndOut').textContent = 'dragstart: ' + ds + ', drop: ' + dr;
+  });
+  document.getElementById('drop').addEventListener('dragover', e => e.preventDefault());
+  document.getElementById('drop').addEventListener('drop', () => {
+    dr++; document.getElementById('dndOut').textContent = 'dragstart: ' + ds + ', drop: ' + dr;
+  });
+</script>
+</body>
+</html>

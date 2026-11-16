@@ -80,9 +80,10 @@ Findings are written up in [`../docs/web-viewer-capabilities.md`](../docs/web-vi
 | `sw.js` | Service worker that intercepts `/lab-marker.txt` (a file that does not exist) |
 | `bye.html` | Destination for the beforeunload navigation test |
 | `poke.html` | Third round — adversarial targets: covered button, `pointer-events:none`, disabled, readonly, maxlength, unicode, Backspace, target=_blank, far-below-fold |
+| `poke2.html` | Fourth round — interaction gaps: CSS `:hover` menu, closed shadow root, required validation, sandboxed iframe, multi-select, color input, drag and drop |
 | `sample.mp4` | Local video source for the `<video>` probe — **git-ignored** (binary), see below |
 
-Results are written up in [`../docs/web-viewer-capabilities.md`](../docs/web-viewer-capabilities.md) §11.
+Results are written up in [`../docs/web-viewer-capabilities.md`](../docs/web-viewer-capabilities.md) §11–§13.
 
 ## The video source is not in Git
 
