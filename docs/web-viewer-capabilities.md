@@ -28,6 +28,7 @@ the rest of this document is evidence, not a workaround manual.**
 | 8 | `type` on a `<select>` reports success when no option matches | failure listing the real options |
 | 9 | **Firefox bridge:** every interaction fails after a tab navigates or reloads — `Interaction script not ready on page` | interactions work on every document load |
 | 10 | **Firefox bridge:** `eval` is expression-only (`return` throws an opaque sandbox error), promises are not awaited, page globals are invisible | same contract as WebView; readable errors |
+| 11 | **Firefox bridge:** scope is not enforced in code — the agent can open tabs, and tabs beyond the shared one appear in `tabs` | the agent can reach only shared tabs and cannot create new ones |
 
 Defects 1–8 were measured on the WebView backend (Android WebView 157); 9–10 on the Firefox
 bridge (Firefox Bridge 1.1 v1) after it replaced WebView.
@@ -407,3 +408,34 @@ Firefox text extraction (`Closed shadow button0`), where WebView showed nothing.
 - Tab/focus semantics with Firefox **foregrounded** — the "Tab does not move focus" result is
   confounded by the background state, since focus events are suppressed there.
 - Defect #7 (popups / `target=_blank`) on this backend.
+
+---
+
+## 15. Enforcement requirements — for the bridge developer
+
+Defect #11 cannot be closed from the agent side: nothing in a prompt can stop a tool from
+opening a tab. It has to be enforced where tabs are enumerated, created and bound. Concretely:
+
+| # | Requirement | Why it matters |
+|---|---|---|
+| E1 | `tabs` returns **only** shared tabs, or marks each entry's origin and refuses actions on unshared ones | sharing one tab should not expose the whole browser |
+| E2 | `browse {url}` **refuses to create a tab** unless the caller holds that capability | the agent should work inside shared tabs, not beside them |
+| E3 | session/id binding rejects tabs that are not shared | otherwise E1 is cosmetic — an id from elsewhere would still work |
+| E4 | the interaction helper is injected into shared tabs **on attach and on every document load** | the shared tab is read-only today, and bridge-opened tabs lose the helper after navigating (defects #9 and the shared-tab defect) |
+| E5 | the extension UI lists shared tabs with id, URL, share time and an unshare control, plus a drivable indicator | the person cannot otherwise confirm what is shared |
+| E6 | errors are specific — `helper missing on this tab` rather than `Interaction script not ready on page` | the current message does not say what is missing or where |
+
+### What is verified, and what is not
+
+- **Verified:** `browse {url}` creates a tab immediately with no confirmation; that tab
+  appears in `tabs` alongside the shared one; the agent can read, evaluate and interact with
+  it; interaction fails in the shared tab.
+- **Not verified:** whether a tab the person has *not* shared appears in `tabs`. Every tab
+  observed so far was either shared or created by the agent. The test is simple — open an
+  unshared tab and call `tabs` — and it decides whether E1 is a leak or just a labelling gap.
+
+### Order of work
+
+E4 first: while the shared tab is read-only, the only way to do interactive work is to open a
+tab — the exact behaviour E1–E3 are meant to forbid. Enforcing the scope before fixing
+interactivity would leave the agent able to read a tab it cannot use.
