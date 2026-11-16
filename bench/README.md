@@ -79,6 +79,26 @@ Findings are written up in [`../docs/web-viewer-capabilities.md`](../docs/web-vi
 | `pm-inner.html` | Child frame for the postMessage probe |
 | `sw.js` | Service worker that intercepts `/lab-marker.txt` (a file that does not exist) |
 | `bye.html` | Destination for the beforeunload navigation test |
-| `sample.mp4` | Local video source for the `<video>` probe |
+| `sample.mp4` | Local video source for the `<video>` probe — **git-ignored** (binary), see below |
 
 Results are written up in [`../docs/web-viewer-capabilities.md`](../docs/web-viewer-capabilities.md) §11.
+
+## The video source is not in Git
+
+`sample.mp4` is deliberately ignored (`.gitignore` → `bench/sample.mp4`). Without it the
+`<video>` probe reports `error.code 4` (no supported source) instead of a decoded stream —
+everything else on `lab.html` still works.
+
+Regenerate it with the viewer itself:
+
+```
+shot {"session":"wv","duration_ms":2000,"fps":8,"name":"sample.mp4"}
+```
+
+then copy the result to `bench/sample.mp4`:
+
+```
+move {"path":"agent/browser/sample.mp4","into":"bench/sample.mp4","copy":true}
+```
+
+Any small H.264 MP4 works just as well.
