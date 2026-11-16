@@ -14,8 +14,8 @@ Stop it afterwards with `serve {"action":"stop","server":"tools"}`.
 
 | # | Section | Proves |
 |---|---|---|
-| 1 | Form controls | select / checkbox / radio / range / date / file / disabled inputs are exposed in `snapshot`; checkbox and radio accept `click`; **`<select>` does not** (see workaround below) |
-| 2 | Keyboard focus order | whether `press Tab` moves focus (it does not — `focusLog` stays `—`) |
+| 1 | Form controls | select / checkbox / radio / range / date / file / disabled inputs are exposed in `snapshot`; checkbox and radio accept `click`; `<select>` is set with `type` (label), not `click` (see below) |
+| 2 | Keyboard focus order | whether `press Tab` moves focus — it does not; key events arrive with `isTrusted:false`, so no default action runs |
 | 3 | Frames | same-origin iframe readable via `eval`; cross-origin iframe blocked; iframe internals never appear in `snapshot` |
 | 4 | Shadow DOM | a button inside `attachShadow({mode:'open'})` is visible to `snapshot` and clickable by the tool (counter reaches 2) |
 | 5 | Canvas | `toDataURL('image/png')` works from page context |
@@ -25,15 +25,30 @@ Stop it afterwards with `serve {"action":"stop","server":"tools"}`.
 | 9 | Visibility | `display:none` is excluded from `## content`, but `aria-hidden` text and collapsed `<details>` bodies are included |
 | 10 | Lazy content | scrolling fires `IntersectionObserver` (`LAZY-ITEM-n` appears) |
 
-## Select workaround
+## Setting a `<select>`
 
-Native `<select>` cannot be operated by `click` or `ArrowDown`. Use script:
+`click` does not open an option list and `ArrowDown` does not change the value, but
+**`type` with the visible option label works**:
+
+```
+browse {"session":"wv","action":"type","target":"#sel","text":"Beta"}
+→ [action: Selected "Beta"]      value becomes "beta"
+```
+
+For a value with no matching label, use script:
 
 ```js
 const s = document.getElementById('sel');
 s.value = 'gamma';
 s.dispatchEvent(new Event('change', { bubbles: true }));
 ```
+
+## Why keyboard defaults fail
+
+`press` delivers untrusted events (`isTrusted:false`). Page `keydown` listeners run, but the
+browser performs no default action — so Tab does not move focus and Space does not toggle a
+checkbox. `click` is also untrusted yet works, because activation behaviour runs for
+untrusted clicks. See [`../docs/web-viewer-capabilities.md`](../docs/web-viewer-capabilities.md) §5.
 
 ## Re-reading results
 

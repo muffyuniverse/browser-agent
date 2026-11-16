@@ -71,14 +71,47 @@ Cross-check with `eval` + `innerText` when the distinction matters.
 | Action | Result |
 |---|---|
 | `type` into text/textarea | ✅ value set, real `input` events |
+| `type` into a native `<select>` | ✅ **selects by visible label** — reports `Selected "Beta"`, value becomes `beta` |
 | `click` button / link / checkbox / radio | ✅ (incl. inside open shadow roots) |
-| `press` `Enter` in a text field | ✅ submits forms, triggers `keydown` handlers |
-| `press` `Tab` | ❌ focus did **not** move (`activeElement` unchanged, `focus` event never fired) |
-| `click` a native `<select>` | ❌ value unchanged, no option list exposed |
-| `press` `ArrowDown` on a `<select>` | ❌ value unchanged |
+| `click` a native `<select>` | ❌ no option list exposed; clicking changes nothing — use `type` instead |
+| `press` `Tab` | ❌ focus did **not** move (`activeElement` unchanged) |
+| `press` `Space` on a focused checkbox | ❌ did **not** toggle it |
+| `press` `ArrowRight` on a focused range | ❌ value unchanged |
+| `press` `Enter` | ⚠️ only where the site's own JS handles `keydown` (hh.ru search submitted); does **not** submit a plain form |
 | `scroll` px / `top` / `bottom` | ✅ and it fires `IntersectionObserver` (lazy content loaded: `LAZY-ITEM-1`, `LAZY-ITEM-2`) |
 
-**Workaround for `<select>`:** set the value and dispatch a bubbling `change` event:
+### Root cause: key events are synthetic (`isTrusted === false`)
+
+Instrumented listeners on the target element prove it:
+
+```
+keydown(isTrusted=false,key=Space) click(isTrusted=false)
+```
+
+- `press` **does** reach page JS: a `keydown` listener receives the key (verified: `[a]`).
+- But untrusted events trigger **no browser default action**, so focus traversal (Tab),
+  checkbox toggling (Space), range stepping (arrows) and native form submit (Enter) never happen.
+- `click` is also `isTrusted=false`, yet it works — per spec, activation behaviour (toggle a
+  checkbox, follow a link, press a button) runs for untrusted `click` events too.
+
+**Consequence for real sites:** anything relying on keyboard defaults — Tab navigation,
+Space/Enter on controls, arrow-key menus — will not respond. Prefer `click`, `type` and
+`eval` for state changes.
+
+### `document.hasFocus()` is false — focus/blur events never fire
+
+```
+{"documentHasFocus": false, "visibility": "visible"}
+```
+
+`el.focus()` sets `document.activeElement`, but fires **no** `focus` event: a listener
+installed by the page never runs (counter stayed 0). Sites that build autocomplete, inline
+validation or `focus-visible` styling on `focus`/`blur` will appear not to react.
+
+**Workaround:** use `click` (activation behaviour) or `eval` to set state directly.
+
+**Workaround for setting a `<select>` without a matching label:** set the value and dispatch
+a bubbling `change` event:
 
 ```js
 const s = document.getElementById('sel');
@@ -86,8 +119,6 @@ s.value = 'gamma';
 s.dispatchEvent(new Event('change', { bubbles: true }));
 // verified: value 'gamma', selectedIndex 2
 ```
-
-**Workaround for Tab order:** don't. Use `focus()` + `snapshot` to find refs instead.
 
 ## 6. Dialogs, popups, downloads
 
