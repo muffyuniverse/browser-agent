@@ -1,0 +1,16 @@
+<!doctype html>
+<html lang="en">
+<head><meta charset="utf-8"><title>postMessage child</title>
+<style>body{font:14px system-ui;margin:0;padding:10px;background:#eef2ff;color:#16204a}</style></head>
+<body>
+<p><strong>PM-CHILD</strong> ready</p>
+<div id="got">no message yet</div>
+<script>
+  addEventListener('message', e => {
+    document.getElementById('got').textContent = 'got: ' + JSON.stringify(e.data);
+    parent.postMessage({ type: 'child-reply', echo: e.data }, '*');
+  });
+  parent.postMessage({ type: 'child-ready' }, '*');
+</script>
+</body>
+</html>

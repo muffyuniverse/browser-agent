@@ -66,3 +66,19 @@ return JSON.stringify({
 ```
 
 Findings are written up in [`../docs/web-viewer-capabilities.md`](../docs/web-viewer-capabilities.md).
+
+## Pages in this folder
+
+| File | Purpose |
+|---|---|
+| `index.html` | Main bench — ten sections (forms, frames, shadow DOM, canvas, storage, network, dialogs, visibility, lazy loading) |
+| `lab.html` | Second round — contenteditable, input-event trust, file injection, video, postMessage, IndexedDB, service worker, clipboard, geolocation, nested scroll, beforeunload |
+| `react.html` | React 18 controlled input (loads React from unpkg) — checks whether `type` updates framework state |
+| `console.html` | Emits console messages at every level plus an uncaught exception — verifies the `## console` capture |
+| `dialogs.html` | `alert()` / `prompt()` / `confirm()` behaviour |
+| `pm-inner.html` | Child frame for the postMessage probe |
+| `sw.js` | Service worker that intercepts `/lab-marker.txt` (a file that does not exist) |
+| `bye.html` | Destination for the beforeunload navigation test |
+| `sample.mp4` | Local video source for the `<video>` probe |
+
+Results are written up in [`../docs/web-viewer-capabilities.md`](../docs/web-viewer-capabilities.md) §11.

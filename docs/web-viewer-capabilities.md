@@ -165,3 +165,39 @@ Google serves a JavaScript-only shell to this WebView. There is no scraping rout
 | **Wikimedia Commons API** | ✅ clean JSON with direct image URLs + thumbnails; downloads verified (red panda 960×640 JPEGs) |
 | **Bing Images** | ✅ grid readable via `snapshot` (image-result pages + source domains); raw HTML contains `murl` direct URLs (36 matches) but bulk extraction is awkward without a script runner |
 | **Openverse API** | ❌ HTTP 403 — Cloudflare "Just a moment..." challenge |
+
+---
+
+## 11. Second round — advanced page features
+
+Tested on `bench/lab.html`, `bench/react.html`, `bench/console.html`, `bench/dialogs.html`.
+
+| Feature | Result |
+|---|---|
+| Contenteditable (`type`) | ✅ text inserted — but it **replaces** existing content, and emits only a synthetic `input` event |
+| Events fired by `type` | ⚠️ `input` only (`isTrusted:false`) — **no `keydown`, no `beforeinput`**, so keyup/autocomplete UIs will not fire |
+| Existing value on `type` | **replaced, not appended**: `"seed"` + type `"X"` → `"X"` |
+| React controlled input | ✅ works — React 18.3.1, `state="hello" changes=1` after `type` |
+| File upload | ⚠️ native picker cannot be operated; ✅ workaround works: `new DataTransfer()` + `new File([...])` assigned to `input.files` (verified `injected.txt`, 23 bytes) |
+| `<video>` | ✅ loads and decodes (readyState 4, 720×1280, 2.25 s, no error); `play()` resolves (muted autoplay allowed); `currentTime` advances to 0.38 s |
+| `postMessage` | ✅ both directions, parent↔child (`child-ready`, `child-reply`) |
+| IndexedDB | ✅ open → put → get round-trip (`{hello:"world", n:42}`) |
+| Service worker | ✅ registers, controls the page, intercepts `fetch` (`FROM-SERVICE-WORKER`) — but only once the page is controlled; on first load activation can race the probe |
+| Clipboard | ❌ `NotAllowedError` — requires user activation |
+| Geolocation | ❌ `error code=1 User denied Geolocation` |
+| Nested scroll container | ❌ `scroll` moves only the window; use `el.scrollTop` in script (verified 300) |
+| `beforeunload` | ✅ navigation proceeds; browser suppresses the panel (`frame that never had a user gesture`) — cannot trap the session |
+| `alert` / `prompt` / `confirm` | all auto-dismissed: alert continues, `prompt` → `null`, `confirm` → `false` |
+| Console capture | ✅ a `## console` section appears in browse results with level and `file:line`, including delayed logs and uncaught exceptions |
+
+### Practical notes
+
+- Because `type` **replaces** the field, appending means reading the current value first and
+  typing `old + new`, or setting `el.value` in script.
+- Because no `keydown`/`keyup` is emitted, search boxes that suggest on keyup will stay quiet
+  even though the text lands. Sites that listen on `input` (React, Vue, most modern forms)
+  work fine.
+- For a file input, the `DataTransfer` trick is the only working route; there is no way to
+  drive the native file picker.
+- Console capture makes the viewer a decent debugging tool: `browse` after an action shows
+  the page's own errors, which is often faster than guessing why a click did nothing.
