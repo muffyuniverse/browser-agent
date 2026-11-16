@@ -74,7 +74,9 @@ pulling many out at once needs a real script runner, which this environment lack
 
 - **Decode before trusting**: DDG wraps links in `uddg=`; Bing sometimes wraps in its own
   redirect. Always check the final host.
-- **Snapshot, don't eval** on third-party sites — CSP blocks `eval` more often than not.
+- **Snapshot vs eval**: some third-party sites refuse `eval` via CSP (defect #3 in
+  [`../docs/web-viewer-capabilities.md`](../docs/web-viewer-capabilities.md)); `snapshot` is
+  unaffected because it does not inject JavaScript.
 - **Re-snapshot each turn**: `[eN]` refs die at turn boundaries.
 - **Heavy pages**: if a load times out, retry with `wait:"dom"` before concluding it's blocked.
 - **Rate limits are real**: an in-page `fetch` to api.github.com returned HTTP 403

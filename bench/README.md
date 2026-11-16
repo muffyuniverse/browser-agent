@@ -35,20 +35,14 @@ browse {"session":"wv","action":"type","target":"#sel","text":"Beta"}
 → [action: Selected "Beta"]      value becomes "beta"
 ```
 
-For a value with no matching label, use script:
+Known defect: a label that matches no option still reports success (defect #8).
 
-```js
-const s = document.getElementById('sel');
-s.value = 'gamma';
-s.dispatchEvent(new Event('change', { bubbles: true }));
-```
-
-## Why keyboard defaults fail
+## Keyboard defaults (defect #1)
 
 `press` delivers untrusted events (`isTrusted:false`). Page `keydown` listeners run, but the
 browser performs no default action — so Tab does not move focus and Space does not toggle a
 checkbox. `click` is also untrusted yet works, because activation behaviour runs for
-untrusted clicks. See [`../docs/web-viewer-capabilities.md`](../docs/web-viewer-capabilities.md) §5.
+untrusted clicks. See [`../docs/web-viewer-capabilities.md`](../docs/web-viewer-capabilities.md) §0.
 
 ## Re-reading results
 

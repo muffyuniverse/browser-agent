@@ -6,7 +6,7 @@ copied from documentation.
 
 | Path | What it is |
 |---|---|
-| [`docs/web-viewer-capabilities.md`](docs/web-viewer-capabilities.md) | What the viewer can and cannot do, with the evidence for each claim |
+| [`docs/web-viewer-capabilities.md`](docs/web-viewer-capabilities.md) | Defect register (§0) plus the measured evidence behind each claim |
 | [`bench/`](bench/README.md) | A self-hosted page that probes each browser feature; run it to re-verify |
 | [`search/`](search/README.md) | Reusable search toolbox: DuckDuckGo, Bing, Wikimedia Commons images |
 

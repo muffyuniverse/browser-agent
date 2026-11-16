@@ -11,6 +11,28 @@ observation that produced it.
 
 ---
 
+## 0. Defect register
+
+Open defects, all filed as advisories with reproductions. **These are expected to be fixed;
+the rest of this document is evidence, not a workaround manual.**
+
+| # | Defect | Expected once fixed |
+|---|---|---|
+| 1 | `press` delivers untrusted key events — Tab/Space/arrows/Enter perform no default action | keyboard defaults work like a real key press |
+| 2 | `document.hasFocus()` is false; `focus`/`blur` never fire | pages see normal focus behaviour while driven |
+| 3 | `eval` refused by page CSP without `'unsafe-eval'` | eval works on CSP-hardened sites |
+| 4 | `type` replaces field content and emits no `keydown`/`beforeinput` | inserts at the caret, emits a normal typing sequence |
+| 5 | `click` bypasses hit-testing — overlay, `pointer-events:none`, `display:none` | click obeys what a user could click |
+| 6 | `type` writes into `readonly` and ignores `maxlength` | constraints honoured |
+| 7 | `target=_blank` / `window.open()` fail silently | tab opens, or an explicit "popup blocked" |
+| 8 | `type` on a `<select>` reports success when no option matches | failure listing the real options |
+
+Known limits that are **not** defects (no action exists to test them, or the platform refuses):
+PDF rendering, hover-gated UI, history back/forward, drag and drop, modifier-key combos,
+closed shadow roots, clipboard and geolocation without user activation.
+
+---
+
 ## 1. Sessions and tabs
 
 - Named sessions (`session:"name"`) persist across separate tool calls: navigation,
@@ -73,7 +95,7 @@ Cross-check with `eval` + `innerText` when the distinction matters.
 | `type` into text/textarea | ✅ value set, real `input` events |
 | `type` into a native `<select>` | ✅ **selects by visible label** — reports `Selected "Beta"`, value becomes `beta` |
 | `click` button / link / checkbox / radio | ✅ (incl. inside open shadow roots) |
-| `click` a native `<select>` | ❌ no option list exposed; clicking changes nothing — use `type` instead |
+| `click` a native `<select>` | ❌ no option list exposed; clicking changes nothing |
 | `press` `Tab` | ❌ focus did **not** move (`activeElement` unchanged) |
 | `press` `Space` on a focused checkbox | ❌ did **not** toggle it |
 | `press` `ArrowRight` on a focused range | ❌ value unchanged |
@@ -95,8 +117,7 @@ keydown(isTrusted=false,key=Space) click(isTrusted=false)
   checkbox, follow a link, press a button) runs for untrusted `click` events too.
 
 **Consequence for real sites:** anything relying on keyboard defaults — Tab navigation,
-Space/Enter on controls, arrow-key menus — will not respond. Prefer `click`, `type` and
-`eval` for state changes.
+Space/Enter on controls, arrow-key menus — do not respond. Defect #1.
 
 ### `document.hasFocus()` is false — focus/blur events never fire
 
@@ -108,17 +129,7 @@ Space/Enter on controls, arrow-key menus — will not respond. Prefer `click`, `
 installed by the page never runs (counter stayed 0). Sites that build autocomplete, inline
 validation or `focus-visible` styling on `focus`/`blur` will appear not to react.
 
-**Workaround:** use `click` (activation behaviour) or `eval` to set state directly.
-
-**Workaround for setting a `<select>` without a matching label:** set the value and dispatch
-a bubbling `change` event:
-
-```js
-const s = document.getElementById('sel');
-s.value = 'gamma';
-s.dispatchEvent(new Event('change', { bubbles: true }));
-// verified: value 'gamma', selectedIndex 2
-```
+Focus-dependent UI therefore does not react while the page is driven. Defect #2.
 
 ## 6. Dialogs, popups, downloads
 
@@ -178,7 +189,7 @@ Tested on `bench/lab.html`, `bench/react.html`, `bench/console.html`, `bench/dia
 | Events fired by `type` | ⚠️ `input` only (`isTrusted:false`) — **no `keydown`, no `beforeinput`**, so keyup/autocomplete UIs will not fire |
 | Existing value on `type` | **replaced, not appended**: `"seed"` + type `"X"` → `"X"` |
 | React controlled input | ✅ works — React 18.3.1, `state="hello" changes=1` after `type` |
-| File upload | ⚠️ native picker cannot be operated; ✅ workaround works: `new DataTransfer()` + `new File([...])` assigned to `input.files` (verified `injected.txt`, 23 bytes) |
+| File upload | ⚠️ no action opens the native picker; page JS can assign a `File` to `input.files` via `DataTransfer` (verified `injected.txt`, 23 bytes) — missing capability, not a defect |
 | `<video>` | ✅ loads and decodes (readyState 4, 720×1280, 2.25 s, no error); `play()` resolves (muted autoplay allowed); `currentTime` advances to 0.38 s |
 | `postMessage` | ✅ both directions, parent↔child (`child-ready`, `child-reply`) |
 | IndexedDB | ✅ open → put → get round-trip (`{hello:"world", n:42}`) |
@@ -190,17 +201,15 @@ Tested on `bench/lab.html`, `bench/react.html`, `bench/console.html`, `bench/dia
 | `alert` / `prompt` / `confirm` | all auto-dismissed: alert continues, `prompt` → `null`, `confirm` → `false` |
 | Console capture | ✅ a `## console` section appears in browse results with level and `file:line`, including delayed logs and uncaught exceptions |
 
-### Practical notes
+### Consequences observed
 
-- Because `type` **replaces** the field, appending means reading the current value first and
-  typing `old + new`, or setting `el.value` in script.
-- Because no `keydown`/`keyup` is emitted, search boxes that suggest on keyup will stay quiet
-  even though the text lands. Sites that listen on `input` (React, Vue, most modern forms)
-  work fine.
-- For a file input, the `DataTransfer` trick is the only working route; there is no way to
-  drive the native file picker.
-- Console capture makes the viewer a decent debugging tool: `browse` after an action shows
-  the page's own errors, which is often faster than guessing why a click did nothing.
+- `type` **replaces** the field rather than inserting at the caret, so an append needs the
+  current value read first (defect #4).
+- No `keydown`/`keyup` is emitted, so search boxes that suggest on keyup stay quiet even
+  though the text lands. Sites listening on `input` (React 18 verified, Vue, most modern
+  forms) update normally.
+- Console capture is useful independently of the defects: `browse` after an action shows the
+  page's own errors.
 
 ---
 
@@ -240,8 +249,8 @@ Tested on `bench/poke.html`. These probe cases where a tool is *likely* to lie a
 Four of the failures above share one cause: **actions are applied to the DOM node rather than
 simulated as user input.** A real user cannot click a covered button, cannot type into a
 readonly field, and cannot exceed `maxlength`. Because the tool addresses elements directly,
-it succeeds where a user would fail — and reports success either way. When a result matters,
-verify by reading state back (`eval`), not by trusting the action's success status.
+it succeeds where a user would fail — and reports success either way. That mismatch is the
+substance of defects #5 and #6.
 
 ---
 
@@ -284,5 +293,5 @@ There is **no** hover, no back/forward history, no drag, no modifier combos (`Ct
 5. select a non-existent option
 
 In every one the tool reported success while the page did something else (or nothing).
-**Rule: verify with `eval` before trusting an action's status.** A `0` from `click`/`type`
-means "dispatched", not "took effect".
+These are the cases behind defects #5, #6 and #8: a `0` from `click`/`type` currently means
+"dispatched", not "took effect", which is precisely what the fixes need to change.
