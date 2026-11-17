@@ -1,0 +1,65 @@
+/* BAON · дизайн-токены · 2026.11
+   Реконструкция по ассетам; сверить с брендбуком. */
+
+:root {
+  /* Цвет */
+  --baon-cream: #F5EAD8;
+  --baon-espresso: #3D2316;
+  --baon-ink: #141214;
+  --baon-grey: #DDD3CC;
+  --baon-white: #FFFFFF;
+  --baon-teal: #1D3B3B;
+  --baon-teal-2: #335C53;
+  --baon-pink: #C55572;
+
+  /* Типографика */
+  --baon-font-display: "Cormorant Garamond", "Playfair Display", Georgia, serif;
+  --baon-font-sans: "Inter", "Manrope", "Golos Text", system-ui, sans-serif;
+  --baon-tracking-kicker: 0.30em;
+  --baon-tracking-kicker-max: 0.45em;
+
+  /* Движение */
+  --baon-dur-logo: 1200ms;
+  --baon-dur-hold: 1500ms;
+  --baon-dur-headline: 900ms;
+  --baon-dur-kicker: 700ms;
+  --baon-dur-crossfade: 600ms;
+  --baon-dur-line: 500ms;
+  --baon-ease-enter: cubic-bezier(0.22, 1, 0.36, 1);
+  --baon-ease-exit: cubic-bezier(0.4, 0, 1, 1);
+  --baon-ease-camera: cubic-bezier(0.65, 0, 0.35, 1);
+
+  /* Сетка */
+  --baon-safe-top: 250px;
+  --baon-safe-bottom: 250px;
+  --baon-safe-side: 60px;
+}
+
+/* Утилиты для быстрого прототипа */
+.baon-fade-up {
+  opacity: 0;
+  transform: translateY(24px);
+  animation: baonFadeUp var(--baon-dur-headline) var(--baon-ease-enter) forwards;
+}
+@keyframes baonFadeUp {
+  to { opacity: 1; transform: none; }
+}
+
+.baon-logo-reveal {
+  clip-path: inset(0 100% 0 0);
+  animation: baonReveal var(--baon-dur-logo) var(--baon-ease-enter) forwards;
+}
+@keyframes baonReveal {
+  to { clip-path: inset(0 0 0 0); }
+}
+
+.baon-kicker {
+  font-family: var(--baon-font-sans);
+  font-size: 12px;
+  letter-spacing: var(--baon-tracking-kicker-max);
+  text-transform: uppercase;
+  animation: baonTrack var(--baon-dur-kicker) var(--baon-ease-enter) forwards;
+}
+@keyframes baonTrack {
+  to { letter-spacing: var(--baon-tracking-kicker); }
+}

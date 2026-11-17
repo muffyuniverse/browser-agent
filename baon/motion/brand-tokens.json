@@ -1,0 +1,69 @@
+{
+  "brand": "BAON",
+  "version": "2026.11",
+  "source": "Реконструкция по ассетам приложения и кампаний; требует сверки с брендбуком",
+  "color": {
+    "cream": "#F5EAD8",
+    "espresso": "#3D2316",
+    "ink": "#141214",
+    "grey": "#DDD3CC",
+    "white": "#FFFFFF",
+    "teal": "#1D3B3B",
+    "teal2": "#335C53",
+    "pink": "#C55572"
+  },
+  "colorRatio": {
+    "neutral": 60,
+    "dark": 30,
+    "accent": 10
+  },
+  "typography": {
+    "display": {
+      "family": "Cormorant Garamond, Playfair Display, Georgia, serif",
+      "weight": 400,
+      "case": "sentence",
+      "maxLines": 2,
+      "lineHeight": 1.02,
+      "letterSpacing": "-0.01em"
+    },
+    "kicker": {
+      "family": "Inter, Manrope, Golos Text, system-ui, sans-serif",
+      "weight": 400,
+      "case": "upper",
+      "letterSpacing": "0.30em",
+      "maxLetterSpacing": "0.45em"
+    },
+    "ui": {
+      "family": "Inter, Manrope, system-ui, sans-serif",
+      "weight": 400,
+      "case": "sentence"
+    }
+  },
+  "motion": {
+    "duration": {
+      "logoReveal": 1200,
+      "logoHold": 1500,
+      "headlineIn": 900,
+      "kickerIn": 700,
+      "crossfade": 600,
+      "lineDraw": 500,
+      "stagger": 100,
+      "starRotation": 24000,
+      "textureDrift": 46000
+    },
+    "easing": {
+      "enter": "cubic-bezier(0.22, 1, 0.36, 1)",
+      "exit": "cubic-bezier(0.4, 0, 1, 1)",
+      "camera": "cubic-bezier(0.65, 0, 0.35, 1)"
+    },
+    "forbidden": ["bounce", "elastic", "back", "flash", "glitch", "rgb-split"]
+  },
+  "layout": {
+    "safeArea": {
+      "vertical": 250,
+      "horizontal": 60
+    },
+    "formats": ["1080x1920", "1080x1080", "1920x1080"],
+    "fps": [25, 30, 50]
+  }
+}
