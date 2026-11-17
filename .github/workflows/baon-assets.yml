@@ -12,6 +12,10 @@ on:
         description: Release tag with the assets
         required: false
         default: baon-assets-2026.11
+  push:
+    branches: [baon-research]
+    paths:
+      - '.github/workflows/baon-assets.yml'
 
 permissions:
   contents: read
