@@ -94,6 +94,10 @@ baon/
 - **Видео в высоком качестве не скачано.** Есть ссылки и тумбнейлы.
 - **Часть фактов — из сниппетов** поисковой выдачи, а не из первоисточника.
   Перед публикацией проверить.
+- **Бинарные ассеты не в Git.** Они выложены в релизе
+  [`baon-assets-2026.11`](https://github.com/muffyuniverse/browser-agent/releases/tag/baon-assets-2026.11);
+  локально восстанавливаются скриптом `scripts/fetch-baon-assets.sh`, на раннере —
+  workflow `.github/workflows/baon-assets.yml`.
 
 Подробно — в [`07-sources-and-gaps.md`](07-sources-and-gaps.md).
 
