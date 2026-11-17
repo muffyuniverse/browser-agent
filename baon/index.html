@@ -1,0 +1,137 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>BAON — пакет исследования</title>
+<style>
+  :root{
+    --cream:#F5EAD8;--espresso:#3D2316;--teal:#1D3B3B;--pink:#C55572;--grey:#DDD3CC;
+    --serif:"Cormorant Garamond","Playfair Display",Georgia,serif;
+    --sans:"Inter","Manrope",system-ui,-apple-system,Segoe UI,Roboto,sans-serif;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--cream);color:var(--espresso);font-family:var(--sans);line-height:1.55}
+  .wrap{max-width:1080px;margin:0 auto;padding:0 22px}
+  header{padding:64px 0 36px;border-bottom:1px solid rgba(61,35,22,.14)}
+  .brand{font-size:12px;letter-spacing:.32em;text-transform:uppercase;opacity:.6}
+  h1{font-family:var(--serif);font-weight:400;font-size:clamp(40px,7vw,76px);line-height:1;margin:14px 0 16px}
+  .lead{max-width:620px;opacity:.75;margin:0}
+  h2{font-family:var(--serif);font-weight:400;font-size:clamp(26px,4vw,40px);margin:0 0 6px}
+  section{padding:44px 0;border-bottom:1px solid rgba(61,35,22,.12)}
+  .sub{opacity:.6;margin:0 0 22px;font-size:14px}
+  .grid{display:grid;gap:14px}
+  .g3{grid-template-columns:repeat(3,1fr)}
+  .g4{grid-template-columns:repeat(4,1fr)}
+  @media(max-width:860px){.g3,.g4{grid-template-columns:repeat(2,1fr)}}
+  @media(max-width:520px){.g3,.g4{grid-template-columns:1fr}}
+  figure{margin:0;background:#fff;border:1px solid rgba(61,35,22,.12);border-radius:14px;overflow:hidden}
+  figure img{width:100%;display:block;aspect-ratio:4/3;object-fit:cover}
+  figure.portrait img{aspect-ratio:9/16;object-fit:cover}
+  figcaption{padding:10px 12px;font-size:12px;line-height:1.35}
+  figcaption b{display:block;font-weight:600}
+  figcaption span{opacity:.6}
+  .docs{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
+  @media(max-width:720px){.docs{grid-template-columns:1fr}}
+  .doc{display:flex;gap:12px;align-items:baseline;padding:14px 16px;border:1px solid rgba(61,35,22,.14);border-radius:12px;text-decoration:none;color:inherit;background:#fff}
+  .doc:hover{border-color:var(--espresso)}
+  .doc b{font-size:13px;letter-spacing:.04em}
+  .doc span{font-size:12px;opacity:.6}
+  .num{font-family:var(--serif);font-size:22px;opacity:.4;min-width:28px}
+  .palette{display:flex;height:64px;border-radius:12px;overflow:hidden;margin:10px 0 8px}
+  .palette i{flex:1;display:flex;align-items:flex-end;padding:6px;font-size:10px;letter-spacing:.08em;font-style:normal}
+  .cta{display:inline-block;margin-top:10px;background:var(--espresso);color:var(--cream);text-decoration:none;padding:13px 24px;border-radius:999px;font-size:12px;letter-spacing:.18em;text-transform:uppercase}
+  footer{padding:40px 0 70px;font-size:12px;opacity:.6}
+  .row{display:flex;gap:14px;flex-wrap:wrap}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="wrap">
+    <div class="brand">BAON · исследовательский пакет · ноябрь 2026</div>
+    <h1>Тепло, которое<br>идёт с вами</h1>
+    <p class="lead">Бренд, визуальный язык, кампании, моушен-бриф и ассеты — всё для дизайн-агента,
+      который будет делать материалы BAON.</p>
+    <a class="cta" href="motion/baon-motion-lab.html">Открыть Motion Lab</a>
+  </div>
+</header>
+
+<section>
+  <div class="wrap">
+    <h2>Документы</h2>
+    <p class="sub">Читать по порядку или точечно.</p>
+    <div class="docs">
+      <a class="doc" href="README.md"><span class="num">00</span><b>README</b><span>карта пакета и главное</span></a>
+      <a class="doc" href="01-brand-platform.md"><span class="num">01</span><b>Бренд-платформа</b><span>история, позиционирование, tone of voice</span></a>
+      <a class="doc" href="02-visual-identity.md"><span class="num">02</span><b>Айдентика</b><span>логотип, цвет, шрифт, элементы</span></a>
+      <a class="doc" href="03-marketing-review.md"><span class="num">03</span><b>Маркетинг</b><span>кампании, коллаборации, ритейл</span></a>
+      <a class="doc" href="04-motion-brief.md"><span class="num">04</span><b>Моушен-бриф</b><span>принципы, тайминги, спецификации</span></a>
+      <a class="doc" href="05-storyboards.md"><span class="num">05</span><b>Раскадровки</b><span>7 сценариев с таймкодами</span></a>
+      <a class="doc" href="06-assets.md"><span class="num">06</span><b>Ассеты</b><span>что есть и чего не хватает</span></a>
+      <a class="doc" href="07-sources-and-gaps.md"><span class="num">07</span><b>Источники</b><span>проверка фактов и ограничения</span></a>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <h2>Палитра</h2>
+    <p class="sub">Извлечена из иконки приложения и креативов кампании.</p>
+    <div class="palette">
+      <i style="background:#F5EAD8;color:#3D2316">#F5EAD8</i>
+      <i style="background:#3D2316;color:#F5EAD8">#3D2316</i>
+      <i style="background:#1D3B3B;color:#F5EAD8">#1D3B3B</i>
+      <i style="background:#C55572;color:#fff">#C55572</i>
+      <i style="background:#DDD3CC;color:#3D2316">#DDD3CC</i>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <h2>Кампания 2026</h2>
+    <p class="sub">Скриншоты приложения: кампания «С вами хоть на край света» и капсула BAON × UNKE.</p>
+    <div class="grid g4">
+      <figure class="portrait"><img src="assets/app/ios-01-hero.jpg" alt="Герой кампании"><figcaption><b>Герой кампании</b><span>аврора, звезда, антиква</span></figcaption></figure>
+      <figure class="portrait"><img src="assets/app/ios-04-unke.jpg" alt="BAON × UNKE"><figcaption><b>BAON × UNKE</b><span>серебро, рукописные облака</span></figcaption></figure>
+      <figure class="portrait"><img src="assets/app/ios-06-loksreen.jpg" alt="Промо"><figcaption><b>Промо-механики</b><span>«только для своих»</span></figcaption></figure>
+      <figure class="portrait"><img src="assets/app/ios-07-sertifikat.jpg" alt="Сертификаты"><figcaption><b>Сертификаты</b><span>тиснение, крем, чёрный</span></figcaption></figure>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <h2>Эволюция стиля</h2>
+    <p class="sub">Тумбнейлы кампаний 2021–2025: от продуктового промо к редакционному триптиху.</p>
+    <div class="grid g3">
+      <figure><img src="assets/campaigns/2021-pravilnyy-puhovik-1.jpg" alt="2021"><figcaption><b>#BAONПравильныйПуховик</b><span>2021 · крупный план, зерно</span></figcaption></figure>
+      <figure><img src="assets/campaigns/2024-easy-life.jpg" alt="2024"><figcaption><b>EASY LIFE</b><span>2024 · триптих, холодный синий</span></figcaption></figure>
+      <figure><img src="assets/campaigns/2025-why-not.jpg" alt="2025"><figcaption><b>WHY NOT?</b><span>2025 · маджента, студия</span></figcaption></figure>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <h2>Приложение</h2>
+    <p class="sub">UI как продолжение бренда: белый, чёрный, крупные фото, спокойные кнопки.</p>
+    <div class="grid g4">
+      <figure class="portrait"><img src="assets/app/ios-02-women.jpg" alt="Для неё"><figcaption><b>Для неё</b><span>категории, гиро-баннер</span></figcaption></figure>
+      <figure class="portrait"><img src="assets/app/ios-03-men.jpg" alt="Для него"><figcaption><b>Для него</b><span>та же сетка</span></figcaption></figure>
+      <figure class="portrait"><img src="assets/app/ios-05-katalog.jpg" alt="Каталог"><figcaption><b>Каталог</b><span>карточки, баджи, кнопки</span></figcaption></figure>
+      <figure class="portrait"><img src="assets/app/ios-08-magaziny.jpg" alt="Магазины"><figcaption><b>Магазины</b><span>51 точка на карте</span></figcaption></figure>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <div>BAON · исследовательский пакет · собрано автономно 17.11.2026</div>
+    <div>Материалы принадлежат правообладателю; использовать для внутренней работы и согласования.</div>
+  </div>
+</footer>
+
+</body>
+</html>
