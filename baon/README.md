@@ -18,6 +18,7 @@
 | Взять ассеты | [`06-assets.md`](06-assets.md), папка `assets/` |
 | Понять сайт и соцсети | [`08-site-and-social.md`](08-site-and-social.md) |
 | Проверить факты | [`07-sources-and-gaps.md`](07-sources-and-gaps.md) |
+| Передать другому агенту | [`HANDOFF.md`](HANDOFF.md) — пути и команды копирования |
 | Посмотреть живой прототип | [`motion/baon-motion-lab.html`](motion/baon-motion-lab.html) |
 
 ---
@@ -50,6 +51,7 @@ baon/
 ├── 06-assets.md               инвентарь ассетов и чего не хватает
 ├── 07-sources-and-gaps.md     источники, проверка фактов, ограничения
 ├── 08-site-and-social.md      сайт baon.ru, VK, промо-слой, сервис
+├── HANDOFF.md                 как забрать пакет целиком
 ├── assets/
 │   ├── logo/                  иконка приложения, монограмма
 │   ├── app/                   8 скриншотов iOS (кампания + UI)
