@@ -1,0 +1,56 @@
+name: BAON assets
+
+# Binary assets (screenshots, thumbnails, video) are not stored in Git.
+# They live as assets of the GitHub release `baon-assets-2026.11`.
+# This workflow downloads them into the expected folders so a docs build,
+# screenshot job or design review can run on a clean runner.
+
+on:
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: Release tag with the assets
+        required: false
+        default: baon-assets-2026.11
+
+permissions:
+  contents: read
+
+jobs:
+  fetch:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Download release assets
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG: ${{ inputs.tag || 'baon-assets-2026.11' }}
+        run: |
+          set -euo pipefail
+          mkdir -p baon/assets/app baon/assets/campaigns baon/assets/logo baon/motion
+          gh release download "$TAG" --pattern 'ios-*.jpg'      --dir baon/assets/app
+          gh release download "$TAG" --pattern '20[0-9][0-9]-*.jpg' --dir baon/assets/campaigns
+          gh release download "$TAG" --pattern 'app-icon-*.png' --dir baon/assets/logo
+          gh release download "$TAG" --pattern 'monogram-*.png' --dir baon/assets/logo
+          gh release download "$TAG" --pattern 'hero-frame.png' --dir baon/motion
+          gh release download "$TAG" --pattern '*.mp4'          --dir baon/motion
+
+      - name: Verify
+        run: |
+          set -euo pipefail
+          count=$(find baon/assets baon/motion -type f \( -name '*.jpg' -o -name '*.png' -o -name '*.mp4' \) | wc -l)
+          echo "downloaded: $count files"
+          find baon/assets baon/motion -type f \( -name '*.jpg' -o -name '*.png' -o -name '*.mp4' \) -printf '%p %s bytes\n' | sort
+          test "$count" -ge 18
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: baon-assets
+          if-no-files-found: error
+          path: |
+            baon/assets
+            baon/motion/hero-frame.png
+            baon/motion/baon-motion-lab.mp4
