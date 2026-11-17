@@ -16,6 +16,7 @@
 | Делать моушен | [`04-motion-brief.md`](04-motion-brief.md) + [`05-storyboards.md`](05-storyboards.md) |
 | Понять бизнес и кампании | [`01-brand-platform.md`](01-brand-platform.md), [`03-marketing-review.md`](03-marketing-review.md) |
 | Взять ассеты | [`06-assets.md`](06-assets.md), папка `assets/` |
+| Понять сайт и соцсети | [`08-site-and-social.md`](08-site-and-social.md) |
 | Проверить факты | [`07-sources-and-gaps.md`](07-sources-and-gaps.md) |
 | Посмотреть живой прототип | [`motion/baon-motion-lab.html`](motion/baon-motion-lab.html) |
 
@@ -48,6 +49,7 @@ baon/
 ├── 05-storyboards.md          7 раскадровок: 30 с, 15 с, 6 с, 3 с, 10 с, 8 с
 ├── 06-assets.md               инвентарь ассетов и чего не хватает
 ├── 07-sources-and-gaps.md     источники, проверка фактов, ограничения
+├── 08-site-and-social.md      сайт baon.ru, VK, промо-слой, сервис
 ├── assets/
 │   ├── logo/                  иконка приложения, монограмма
 │   ├── app/                   8 скриншотов iOS (кампания + UI)

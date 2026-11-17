@@ -9,13 +9,14 @@ TAG="${1:-baon-assets-2026.11}"
 REPO="${REPO:-muffyuniverse/browser-agent}"
 
 cd "$(dirname "$0")/.."
-mkdir -p baon/assets/app baon/assets/campaigns baon/assets/logo baon/motion
+mkdir -p baon/assets/app baon/assets/campaigns baon/assets/logo baon/assets/site baon/motion
 
 if command -v gh >/dev/null 2>&1; then
   gh release download "$TAG" --repo "$REPO" --pattern 'ios-*.jpg'        --dir baon/assets/app
   gh release download "$TAG" --repo "$REPO" --pattern '20[0-9][0-9]-*.jpg' --dir baon/assets/campaigns
   gh release download "$TAG" --repo "$REPO" --pattern 'app-icon-*.png'   --dir baon/assets/logo
   gh release download "$TAG" --repo "$REPO" --pattern 'monogram-*.png'   --dir baon/assets/logo
+  gh release download "$TAG" --repo "$REPO" --pattern 'site-*.png'       --dir baon/assets/site
   gh release download "$TAG" --repo "$REPO" --pattern 'hero-frame.png'   --dir baon/motion
   gh release download "$TAG" --repo "$REPO" --pattern '*.mp4'            --dir baon/motion
 else
@@ -30,6 +31,7 @@ else
       ios-*.jpg)          dir=baon/assets/app ;;
       20[0-9][0-9]-*.jpg) dir=baon/assets/campaigns ;;
       app-icon-*.png|monogram-*.png) dir=baon/assets/logo ;;
+      site-*.png)         dir=baon/assets/site ;;
       hero-frame.png|*.mp4) dir=baon/motion ;;
       *) echo "skip $name"; continue ;;
     esac
